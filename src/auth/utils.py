@@ -40,6 +40,10 @@ def create_access_token(
 
 
 def decode_token(token: str) -> dict:
+    # Here we have removed the Bearer segment from the token
+    # https://github.com/jpadilla/pyjwt/issues/890#issuecomment-1586319524
+    # https://github.com/jpadilla/pyjwt/issues/890
+    token = token.split(" ")[1]
     try:
         token_data = jwt.decode(
             jwt=token, key=Config.JWT_SECRET, algorithms=[Config.JWT_ALGORITHM]
