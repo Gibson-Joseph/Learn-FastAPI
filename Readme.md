@@ -94,3 +94,9 @@ $ sudo systemctl status redis
 ```bash
 Active: active (running)
 ```
+
+## 🧩 What “serialization” means — simple definition
+
+Serialization means converting a Python object (like a dict, model, or class instance) into a format that can be easily stored or sent (like JSON, bytes, or text).
+
+Deserialization is the opposite — turning that serialized format back into a Python object.
