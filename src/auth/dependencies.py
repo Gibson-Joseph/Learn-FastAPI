@@ -1,9 +1,16 @@
-from fastapi import Request, HTTPException, status
+from typing import List
+from fastapi import Request, HTTPException, status, Depends
 from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
+from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from .utils import decode_token
+from .models import User
+from .service import userService
+from src.db.main import get_session
 from src.db.redis import token_in_blocklist
+
+user_service = userService()
 
 
 class TokenBearer(HTTPBearer):
@@ -62,3 +69,28 @@ class RefershTokenBearer(TokenBearer):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Please provide an refresh token",
             )
+
+
+# Depends tells FastAPI:
+# “This function depends on another function — please run that first, and give me its result.”
+async def get_current_user(
+    token_details: dict = Depends(AccessTokenBearer()),
+    session: AsyncSession = Depends(get_session),
+):
+    use_email = token_details["user"]["email"]
+    user = await user_service.get_user_by_email(use_email, session)
+    return user
+
+
+class RoleChecker:
+    def __init__(self, allowed_roles: List[str]) -> None:
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, current_user: User = Depends(get_current_user)) -> bool:
+        if current_user.role in self.allowed_roles:
+            return True
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You are not allowed to perform this action",
+        )

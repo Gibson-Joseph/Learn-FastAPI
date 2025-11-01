@@ -10,11 +10,16 @@ from .service import userService
 from .schemas import UserCreateModel, UserModel, UserLoginModel
 from src.db.main import get_session
 from src.db.redis import add_jti_to_blocklist
-from .dependencies import RefershTokenBearer, AccessTokenBearer
-
+from .dependencies import (
+    RoleChecker,
+    AccessTokenBearer,
+    RefershTokenBearer,
+    get_current_user,
+)
 
 auth_router = APIRouter()
 user_service = userService()
+role_checker = RoleChecker(["admin", "user"])
 
 
 REFRESH_TOKEN_EXPIRY = 2
@@ -51,7 +56,11 @@ async def login_users(
         password_valid = verify_password(password, user.password_hash)
         if password_valid:
             access_token = create_access_token(
-                user_data={"email": user.email, "user_uid": str(user.uid)}
+                user_data={
+                    "role": user.role,
+                    "email": user.email,
+                    "user_uid": str(user.uid),
+                }
             )
 
             refresh_token = create_access_token(
@@ -85,6 +94,13 @@ async def get_new_access_token(token_details: dict = Depends(RefershTokenBearer(
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Or expired token"
     )
+
+
+@auth_router.get("/me")
+async def get_current_user(
+    user=Depends(get_current_user), _: bool = Depends(role_checker)
+):
+    return user
 
 
 @auth_router.get("/logout")

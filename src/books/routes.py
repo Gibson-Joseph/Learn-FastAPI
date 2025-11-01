@@ -5,23 +5,34 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from src.books.service import BookService
 from src.books.schemas import Book, BookUpdateModel, BookCreateModel
-from src.auth.dependencies import AccessTokenBearer
+from src.auth.dependencies import AccessTokenBearer, RoleChecker
 
 
 book_router = APIRouter()
 book_service = BookService()
+role_checker = Depends(RoleChecker(["admin", "user"]))
 access_bearer = AccessTokenBearer()
 
 
-@book_router.get("/", response_model=List[Book])
+@book_router.get(
+    "/", response_model=List[Book], dependencies=[role_checker]
+)  # FastAPI, please run this dependency function, but I don’t care about its return value
 async def get_all_books(
-    session: AsyncSession = Depends(get_session), user_details=Depends(access_bearer)
+    session: AsyncSession = Depends(get_session),
+    user_details=Depends(access_bearer),
+    # _:bool = Depends(role_checker)
 ):
+    # “FastAPI, before running this endpoint, call these dependency functions. Whatever they return, inject that value into these parameters.”
     books = await book_service.get_all_books(session)
     return books
 
 
-@book_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Book)
+@book_router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+    response_model=Book,
+    dependencies=[role_checker],
+)
 async def create_a_book(
     book_data: BookCreateModel,
     session: AsyncSession = Depends(get_session),
@@ -32,7 +43,11 @@ async def create_a_book(
     return new_book
 
 
-@book_router.get("/{book_uid}", response_model=Book)
+@book_router.get(
+    "/{book_uid}",
+    dependencies=[role_checker],
+    response_model=Book,
+)
 async def get_book(
     book_uid: str,
     session: AsyncSession = Depends(get_session),
@@ -48,7 +63,11 @@ async def get_book(
         )
 
 
-@book_router.patch("/{book_uid}", response_model=Book)
+@book_router.patch(
+    "/{book_uid}",
+    dependencies=[role_checker],
+    response_model=Book,
+)
 async def update_book(
     book_uid: str,
     book_update_data: BookUpdateModel,
@@ -65,7 +84,9 @@ async def update_book(
         return updated_book
 
 
-@book_router.delete("/{book_uid}", status_code=status.HTTP_204_NO_CONTENT)
+@book_router.delete(
+    "/{book_uid}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[role_checker]
+)
 async def delete_book(
     book_uid: str,
     session: AsyncSession = Depends(get_session),
