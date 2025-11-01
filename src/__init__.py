@@ -9,7 +9,7 @@ from src.db.main import init_db
 @asynccontextmanager
 async def life_span(app: FastAPI):
     print(f"🔌 server is starting ...")  # Runs on app startup
-    await init_db()
+    # await init_db()
     yield  # <-- This is where FastAPI runs your app (FastAPI app is live (serving requests))
     print(f"🧹 server has been stopped ...")  # Runs on app shutdown
 
