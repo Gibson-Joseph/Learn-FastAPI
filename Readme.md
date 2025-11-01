@@ -54,3 +54,43 @@ alembic upgrade head ## Apply all unapplied migrations
 alembic downgrade -1 ## Undo the last migration
 alembic current ## Show current DB version
 alembic history ## Show all migrations (like git log)
+
+### Redis
+
+# three simple ways to check whether Redis is running on your system
+
+## 🧩 Option 1 — Using the Redis CLI
+
+```bash
+$ redis-cli ping
+```
+
+✅ If Redis is running, you’ll get:
+
+```bash
+PONG
+```
+
+## ⚙️ Option 2 — Check the process (Linux / macOS)
+
+```bash
+$ ps aux | grep redis
+```
+
+✅ If Redis is running, you’ll get:
+
+```bash
+redis-server \*:6379
+```
+
+## 🪟 Option 3 — Using systemctl (Linux systems with systemd)
+
+```bash
+$ sudo systemctl status redis
+```
+
+✅ If Redis is running, you’ll get:
+
+```bash
+Active: active (running)
+```
