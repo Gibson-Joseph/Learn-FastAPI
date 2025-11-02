@@ -5,10 +5,10 @@ from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from .utils import decode_token
-from .models import User
 from .service import userService
 from src.db.main import get_session
 from src.db.redis import token_in_blocklist
+from src.db.models import User
 
 user_service = userService()
 
