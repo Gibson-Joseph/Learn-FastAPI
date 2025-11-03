@@ -7,6 +7,7 @@ from src.reviews.routes import review_router
 from src.db.main import init_db
 
 
+# 08:00:00 
 @asynccontextmanager
 async def life_span(app: FastAPI):
     print(f"🔌 server is starting ...")  # Runs on app startup
