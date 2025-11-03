@@ -92,7 +92,10 @@ class Review(SQLModel, table=True):
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now))
 
-    user: Optional[User] = Relationship(back_populates="reviews")
+    # https://docs.sqlalchemy.org/en/20/orm/queryguide/relationships.html#summary-of-relationship-loading-styles
+    user: Optional[User] = Relationship(
+        back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"}
+    )
     book: Optional[Book] = Relationship(back_populates="reviews")
 
     def __repr__(self):
