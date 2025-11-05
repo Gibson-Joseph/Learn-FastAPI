@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import Request, HTTPException, status, Depends
+from fastapi import Request, Depends
 from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio.session import AsyncSession
@@ -9,6 +9,12 @@ from .service import userService
 from src.db.main import get_session
 from src.db.redis import token_in_blocklist
 from src.db.models import User
+from src.errors import (
+    InvalidToken,
+    AccessTokenRequired,
+    RefereshTokenRequired,
+    InsufficientPermission,
+)
 
 user_service = userService()
 
@@ -24,22 +30,10 @@ class TokenBearer(HTTPBearer):
         token_data = decode_token(token)
 
         if not self.token_valid(token):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "error": "This token is invalid or expired",
-                    "resolution": "Please get new token",
-                },
-            )
+            raise InvalidToken()
 
         if token_in_blocklist(token_data["jti"]):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "error": "This token is invalid or has been revoked",
-                    "resolution": "Please get new token",
-                },
-            )
+            raise InvalidToken()
 
         self.verify_token_data(token_data)
 
@@ -56,19 +50,13 @@ class TokenBearer(HTTPBearer):
 class AccessTokenBearer(TokenBearer):
     def verify_token_data(self, token_data: dict) -> None:
         if token_data and token_data["refresh"]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Please provide an access token",
-            )
+            raise AccessTokenRequired()
 
 
 class RefershTokenBearer(TokenBearer):
     def verify_token_data(self, token_data: dict) -> None:
         if token_data and not token_data["refresh"]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Please provide an refresh token",
-            )
+            raise RefereshTokenRequired()
 
 
 # Depends tells FastAPI:
@@ -90,7 +78,4 @@ class RoleChecker:
         if current_user.role in self.allowed_roles:
             return True
 
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You are not allowed to perform this action",
-        )
+        raise InsufficientPermission()
