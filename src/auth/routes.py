@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, status
 from datetime import timedelta, datetime
 from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
@@ -16,6 +15,7 @@ from .dependencies import (
     RefershTokenBearer,
     get_current_user,
 )
+from src.errors import UserAlreadyExists, InvalidCredentials, InvalidToken
 
 auth_router = APIRouter()
 user_service = userService()
@@ -33,11 +33,9 @@ async def create_user_account(
 ):
     email = user_data.email
     user_exists = await user_service.user_exists(email, session)
+
     if user_exists:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User with email already exists",
-        )
+        raise UserAlreadyExists()
 
     new_user = await user_service.create_user(user_data, session)
     return new_user
@@ -78,9 +76,7 @@ async def login_users(
                 }
             )
 
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Email Or password"
-    )
+    raise InvalidCredentials()
 
 
 @auth_router.get("/refresh_token")
@@ -91,9 +87,7 @@ async def get_new_access_token(token_details: dict = Depends(RefershTokenBearer(
         new_access_token = create_access_token(user_data=token_details["user"])
         return JSONResponse(content={"access_token": new_access_token})
 
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid Or expired token"
-    )
+    raise InvalidToken()
 
 
 @auth_router.get("/me", response_model=UserBooksModel)

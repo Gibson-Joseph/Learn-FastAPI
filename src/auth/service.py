@@ -3,6 +3,7 @@ from sqlmodel import select
 
 from .utils import generate_passwd_hash
 from .schemas import UserCreateModel
+
 from src.db.models import User
 
 
