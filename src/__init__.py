@@ -1,6 +1,5 @@
 from fastapi import FastAPI, status
 from contextlib import asynccontextmanager
-from fastapi.responses import JSONResponse
 
 from src.auth.routes import auth_router
 from src.tags.routes import tags_router
