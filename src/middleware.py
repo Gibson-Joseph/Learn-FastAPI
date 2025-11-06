@@ -53,11 +53,15 @@ def register_middleware(app: FastAPI):
     # CORS stands for Cross-Origin Resource Sharing.
     # This middleware controls which frontend websites (origins) are allowed to make API requests to your backend.
     app.add_middleware(
-        CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_credentials=True
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+        allow_credentials=True,
     )
     # allow_origins=["*"] → allows any domain (like http://localhost:3000 or https://example.com) to call your API.
     # allow_methods=["*"] → allows all HTTP methods (GET, POST, PUT, DELETE, etc.).
     # allow_credentials=True → allows cookies or Authorization headers to be included in requests.
 
     # This will guard against HTTP Host Header attack
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])

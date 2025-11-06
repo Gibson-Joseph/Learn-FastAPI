@@ -6,7 +6,15 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 
 from .utils import create_access_token, verify_password
 from .service import userService
-from .schemas import UserCreateModel, UserModel, UserLoginModel, UserBooksModel
+from .schemas import (
+    UserModel,
+    EmailModel,
+    UserLoginModel,
+    UserBooksModel,
+    UserCreateModel,
+)
+from src.mail import mail, create_message
+from src.errors import UserAlreadyExists, InvalidCredentials, InvalidToken
 from src.db.main import get_session
 from src.db.redis import add_jti_to_blocklist
 from .dependencies import (
@@ -15,7 +23,6 @@ from .dependencies import (
     RefershTokenBearer,
     get_current_user,
 )
-from src.errors import UserAlreadyExists, InvalidCredentials, InvalidToken
 
 auth_router = APIRouter()
 user_service = userService()
@@ -77,6 +84,16 @@ async def login_users(
             )
 
     raise InvalidCredentials()
+
+
+@auth_router.post("/send_mail")
+async def send_mail(emails: EmailModel):
+    emails = emails.addresses
+    html = "<h1>Welcome to book store app</h1>"
+    message = create_message(recipients=emails, subject="Welcome", body=html)
+
+    await mail.send_message(message)
+    return {"message": "Email has been sent successfully"}
 
 
 @auth_router.get("/refresh_token")
