@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.requests import Request
-from fastapi.responses import Response
-
+from fastapi.responses import Response, JSONResponse
+from typing import Callable, Awaitable
 
 import time
 import logging
@@ -17,7 +17,9 @@ logger.disabled = True
 
 def register_middleware(app: FastAPI):
     @app.middleware("http")
-    async def custom_loggin(request: Request, call_next):
+    async def custom_loggin(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ):
         start_time = time.time()
 
         response: Response = await call_next(request)
@@ -28,3 +30,20 @@ def register_middleware(app: FastAPI):
 
         print(message)
         return response
+
+    # @app.middleware("http")
+    # async def authorization(
+    #     request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    # ):
+    #     if not "Authorization" in request.headers:
+    #         # When we use middleware we can't raise HttpException inside the middleware.
+    #         return JSONResponse(
+    #             content={
+    #                 "message": "Not Authenticated",
+    #                 "resolution": "Please provide the right credentials to proceed",
+    #             },
+    #             status_code=status.HTTP_401_UNAUTHORIZED,
+    #         )
+    #     response = await call_next(request)
+
+    #     return response
