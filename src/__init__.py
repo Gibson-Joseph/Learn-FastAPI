@@ -8,11 +8,11 @@ from src.books.routes import book_router
 from src.reviews.routes import review_router
 
 from .errors import register_error_handlers
+from .middleware import register_middleware
 
 # from src.db.main import init_db
 
 
-# 08:00:00
 @asynccontextmanager
 async def life_span(app: FastAPI):
     print(f"🔌 server is starting ...")  # Runs on app startup
@@ -36,6 +36,7 @@ app = FastAPI(
 
 # Whenever that specific exception is raised anywhere in your app, FastAPI will catch it and use your custom handler function to generate the HTTP response instead of crashing or returning the default error.
 register_error_handlers(app)
+register_middleware(app)
 
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["auth"])
 app.include_router(book_router, prefix=f"/api/{version}/books", tags=["books"])
