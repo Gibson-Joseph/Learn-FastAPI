@@ -5,6 +5,7 @@ import logging
 from src.config import Config
 from passlib.context import CryptContext
 from datetime import timedelta, datetime
+from itsdangerous import URLSafeTimedSerializer
 
 ACCESS_TOKEN_EXPIRY = 3600
 
@@ -52,3 +53,26 @@ def decode_token(token: str) -> dict:
     except jwt.PyJWTError as e:
         logging.exception(e)
         return None
+
+
+serializer = URLSafeTimedSerializer(
+    secret_key=Config.JWT_SECRET, salt="email-verification"
+)
+
+
+def create_url_safe_token(data: dict):
+    serializer = URLSafeTimedSerializer(
+        secret_key=Config.JWT_SECRET, salt="email-verification"
+    )
+    token = serializer.dumps(data)
+
+    return token
+
+
+def decode_url_safe_token(token: str):
+    try:
+        token_data = serializer.loads(token)
+        return token_data
+
+    except Exception as e:
+        logging.error(str(e))

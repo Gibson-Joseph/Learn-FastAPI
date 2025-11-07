@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     VALIDATE_CERTS: bool = True
     USE_CREDENTIALS: bool = True
 
+    DOMAIN: str
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
