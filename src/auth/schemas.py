@@ -10,7 +10,7 @@ from src.reviews.schemas import ReviewModel
 
 class UserCreateModel(BaseModel):
     email: str = Field(max_length=40)
-    username: str = Field(max_length=8)
+    username: str = Field(max_length=15)
     password: str = Field(min_length=6)
     last_name: str = Field(max_length=25)
     first_name: str = Field(max_length=25)
@@ -40,3 +40,12 @@ class UserLoginModel(BaseModel):
 
 class EmailModel(BaseModel):
     addresses: List[str]
+
+
+class PasswordResetRequestModel(BaseModel):
+    email: str
+
+
+class PasswordResetConfirmModel(BaseModel):
+    new_password: str = Field(min_length=6)
+    confirm_new_password: str = Field(min_length=6)
