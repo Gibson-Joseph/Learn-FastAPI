@@ -59,9 +59,12 @@ alembic downgrade -1 ## Undo the last migration
 alembic current ## Show current DB version
 alembic history ## Show all migrations (like git log)
 
-### Redis
+# 🔴 Redis – In-Memory Data Store
 
-# three simple ways to check whether Redis is running on your system
+Redis (Remote Dictionary Server) is an open-source, in-memory data structure store used as a database, cache, and message broker.
+It’s extremely fast because it keeps data in memory instead of disk, making it ideal for high-performance backend systems.
+
+## three simple ways to check whether Redis is running on your system
 
 ## 🧩 Option 1 — Using the Redis CLI
 
@@ -104,3 +107,123 @@ Active: active (running)
 Serialization means converting a Python object (like a dict, model, or class instance) into a format that can be easily stored or sent (like JSON, bytes, or text).
 
 Deserialization is the opposite — turning that serialized format back into a Python object.
+
+# 🐝 Celery – Asynchronous Task Queue
+
+Celery is an asynchronous task queue or job queue that’s widely used in Python backend development for running background tasks outside the main request–response cycle — making your app faster and more scalable.
+
+Celery is a distributed task queue that allows you to execute time-consuming or scheduled jobs asynchronously.
+It means instead of making the user wait while your app completes a long operation, you can offload that work to Celery to be executed in the background.
+
+# ⚙️ Typical Use Cases
+
+Sending emails in the background.
+Generating reports or processing large files.
+Calling external APIs without blocking the main thread.
+Scheduling periodic tasks (like CRON jobs).
+Running machine learning or data processing jobs asynchronously.
+
+## Install Celery
+
+```bash
+$ pip install celery
+```
+
+## Start a Worker
+
+```bash
+$ celery -A src.celery_tasks.c_app worker --loglevel=info
+```
+
+## Workers are background executors that continuously “listen” to the Redis broker for new jobs.
+
+```bash
+          ┌──────────────────┐
+          │  FastAPI Server  │
+          │ (main process)   │
+          └──────┬───────────┘
+                 │ Adds task to queue
+                 ▼
+          ┌──────────────────┐
+          │   Redis Broker   │
+          │ (task queue)     │
+          └──────┬───────────┘
+                 │
+     ┌───────────┴───────────┐
+     │                       │
+┌────────────┐         ┌────────────┐
+│ Celery     │         │ Celery     │
+│ Worker #1  │         │ Worker #2  │
+└────────────┘         └────────────┘
+     │                       │
+     ▼                       ▼
+ Executes task         Executes another task
+```
+
+## 🧩 How you start workers
+
+You start them from the command line:
+
+```bash
+celery -A src.celery_tasks.c_app worker --loglevel=info
+```
+
+This starts a background process that:
+
+1. Connects to your broker (e.g., Redis)
+2. Listens for new messages (tasks)
+3. Executes them when available
+
+You can run multiple workers — even on different servers — and they’ll all pull tasks from the same queue.
+
+| Term                 | Meaning                                             |
+| -------------------- | --------------------------------------------------- |
+| **Worker**           | A background process that executes Celery tasks     |
+| **Broker**           | The message queue that holds tasks (Redis/RabbitMQ) |
+| **Backend**          | Optional store for task results/status              |
+| **Multiple Workers** | Allow parallel and distributed processing           |
+
+# 🌼 What is Flower?
+
+Flower is a real-time web-based monitoring tool for Celery.
+It lets you visually track and manage your Celery workers, tasks, and queues through a dashboard.
+
+In short:
+
+🧠 Flower = Celery’s monitoring dashboard.
+
+## 🔍 Why you need it
+
+When Celery is running, tasks are distributed among multiple workers, possibly across servers.
+Tracking their:
+
+1. status,
+2. progress,
+3. failures,
+4. or retries
+
+can get difficult using just logs.
+
+✅ Flower gives you a live web interface to monitor all that.
+
+## 🧩 Installation
+
+```bash
+$ pip install flower
+```
+
+## 🚀 How to start Flower
+
+```bash
+celery -A src.celery_tasks.c_app flower
+```
+
+Open http://localhost:5555
+
+## Monitoring with celery events
+
+Celery also comes with a real-time event console — basically a text-based version of Flower.
+
+```bash
+celery -A src.celery_tasks.c_app events
+```
