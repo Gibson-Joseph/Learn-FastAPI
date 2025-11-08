@@ -5,9 +5,7 @@ from src.config import Config
 JTI_EXPIRY = 3600
 
 # This is for our redis configuration, this is enough to get a connect to our redis
-token_blocklist = redis.StrictRedis(
-    host=Config.REDIS_HOST, port=Config.REDIS_PORT, db=0
-)
+token_blocklist = redis.from_url(Config.REDIS_URL)
 
 
 # This function enough add our jti to our block list
