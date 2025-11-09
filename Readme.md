@@ -227,3 +227,47 @@ Celery also comes with a real-time event console — basically a text-based vers
 ```bash
 celery -A src.celery_tasks.c_app events
 ```
+
+# 🧪 Schemathesis — Automated API Testing for FastAPI
+
+Schemathesis is a property-based testing tool for RESTful APIs built from OpenAPI / Swagger specifications.
+It automatically generates hundreds of test cases to validate your API’s behavior, edge cases, and error handling.
+
+📘 What is Schemathesis?
+
+Schemathesis takes your API’s OpenAPI schema (like openapi.json) and:
+
+1. Generates randomized but valid and invalid inputs.
+2. Runs them automatically against your API endpoints.
+3. Detects issues such as:
+   1. Incorrect status codes
+   2. Crashes or unhandled exceptions
+   3. Schema validation mismatches
+
+## ⚙️ Installation
+
+```bash
+$ pip install schemathesis
+```
+
+## Generate OpenAPI Schema
+
+If you’re using FastAPI, your schema is usually available at:
+
+```bash
+http://localhost:8000/openapi.json
+```
+
+## Run Schemathesis Tests via CLI
+
+Run tests against your live FastAPI app:
+
+```bash
+$ schemathesis run http://localhost:8000/openapi.json
+```
+
+This will:
+
+1. Load all endpoints from the schema
+2. Generate random test cases for each
+3. Report any errors or contract violations
