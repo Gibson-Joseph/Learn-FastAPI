@@ -12,6 +12,7 @@ from .middleware import register_middleware
 # from src.db.main import init_db
 
 
+# 11:23:53
 @asynccontextmanager
 async def life_span(app: FastAPI):
     print(f"🔌 server is starting ...")  # Runs on app startup
@@ -27,6 +28,13 @@ app = FastAPI(
     version=version,
     description="A REST API for a book library web service",
     lifespan=life_span,
+    # docs_url=f"/api/{version}/docs",
+    redoc_url=f"/api/{version}/redoc",
+    contact={
+        "name": "Gibson Joseph",
+        "email": "gibsonjoseph890@gmail.com",
+        "url": "https://www.linkedin.com/in/gibson-joseph-05988b239/",
+    },
 )
 
 # In FastAPI, app.add_exception_handler() lets you register a custom handler for specific exceptions.
