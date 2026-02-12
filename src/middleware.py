@@ -64,4 +64,11 @@ def register_middleware(app: FastAPI):
     # allow_credentials=True → allows cookies or Authorization headers to be included in requests.
 
     # This will guard against HTTP Host Header attack
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=["localhost", "127.0.0.1"])
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=[
+            "localhost",
+            "127.0.0.1",
+            "book-store-api-stlp.onrender",  # Domain name which is created by Render
+        ],
+    )
