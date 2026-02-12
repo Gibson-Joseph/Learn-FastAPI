@@ -69,6 +69,6 @@ def register_middleware(app: FastAPI):
         allowed_hosts=[
             "localhost",
             "127.0.0.1",
-            "book-store-api-stlp.onrender",  # Domain name which is created by Render
+            "book-store-api-stlp.onrender"  # Domain name which is created by Render
         ],
     )
