@@ -1,0 +1,1 @@
+The .gitkeep file is an unofficial convention used by developers to force Git to track a directory that is otherwise empty. Git is designed to only track files, not directories, so an empty folder will not be included in a commit or pushed to a remote repository.
